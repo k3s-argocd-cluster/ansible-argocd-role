@@ -1,0 +1,14 @@
+---
+
+- name: Set role parameter
+  set_fact:
+    targetNamespace: "{{ item.namespace }}"
+
+- name: Render templates
+  ansible.builtin.template:
+    src: '{{ filetree.src }}'
+    dest: "{{ item.targetDirectory }}/{{ filetree.path }}"
+    mode: '{{ filetree.mode }}'
+  with_filetree: "templates/recover-volume-hook/"
+  loop_control:
+    loop_var: filetree

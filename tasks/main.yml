@@ -1,0 +1,60 @@
+---
+
+- name: Copy bootstrap repository
+  copy:
+    src: bootstrap-k3s/
+    dest: /tmp/bootstrap-k3s
+
+- name: Install sealedsecrets service
+  ansible.builtin.shell:
+    chdir: /tmp/bootstrap-k3s/sealedsecrets/overlays
+    cmd: |
+      kubectl apply -k k3s
+      kubectl wait --namespace=kube-system --for=condition="Ready" pods --all --timeout 120s
+
+- name: Install ArgoCD by using kustomize
+  ansible.builtin.shell:
+    chdir: /tmp/bootstrap-k3s/argocd/overlays
+    cmd: |
+      kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+      kubectl apply -k k3s
+
+- name: Bootstrap using ArgoCD
+  ansible.builtin.shell:
+    chdir: /tmp/bootstrap-k3s/argocd/overlays/k3s
+    cmd: |
+      kubectl -n argocd wait --for condition=established crd/applications.argoproj.io --timeout 60s
+      kubectl apply -k applications
+
+- name: Install ArgoCD CLI
+  ansible.builtin.shell:
+    chdir: /tmp
+    cmd: |
+      curl -sSL -o argocd-linux-arm64 https://github.com/argoproj/argo-cd/releases/download/{{ kubernetes.argocd.version }}/argocd-linux-arm64
+      install -m 555 argocd-linux-arm64 /usr/local/bin/argocd
+      rm -rf argocd-linux-arm64
+
+- name: Change ArgoCD password
+  ansible.builtin.shell:
+    chdir: /tmp
+    cmd: |
+      kubectl config view --raw >~/.kube/config
+      kubectl wait --namespace=argocd --for=condition="Ready" pods --all --timeout 60s
+      argocd login `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --skip-test-tls --insecure --plaintext --username=admin --password=`kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{% raw %}{.data.password}{% endraw %}" | base64 -d; echo`
+      argocd account update-password --insecure --plaintext --account admin --current-password=`kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{% raw %}{.data.password}{% endraw %}" | base64 -d; echo` --new-password='{{ argocd_password }}'
+      argocd logout `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --insecure --plaintext
+      kubectl -n argocd delete secret argocd-initial-admin-secret
+
+- name: Sync bootstrap applications
+  ansible.builtin.shell:
+    chdir: /tmp
+    cmd: |
+      sleep 30
+      argocd login `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --skip-test-tls --insecure --plaintext --username=admin --password='{{ argocd_password }}'
+      argocd app sync infrastructure --timeout 300
+      argocd logout `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --insecure --plaintext
+
+- name: Remove bootstrap repository
+  file:
+    path: /tmp/bootstrap-k3s
+    state: absent

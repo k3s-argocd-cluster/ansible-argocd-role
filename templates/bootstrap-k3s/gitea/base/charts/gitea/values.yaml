@@ -1,0 +1,31 @@
+nameOverride: gitea
+fullnameOverride: gitea
+
+gitea:
+  nameOverride: gitea
+  fullnameOverride: gitea
+  persistence:
+    existingClaim: gitea-volume-claim
+  memcached:
+    enabled: false
+  postgresql:
+    enabled: false
+  gitea:
+    admin:
+      email: {{ gitea_settings.admin.email }}
+      existingSecret: gitea-admin-secret
+    config:
+      database:
+        DB_TYPE: postgres
+        HOST: {{ dns_names.postgresql }}
+        NAME: {{ gitea_settings.database.dbname }}
+        USER: {{ gitea_settings.database.user }}
+    additionalConfigSources:
+    - configMap:
+        name: gitea-app-ini
+    additionalConfigFromEnvs:
+      - name: ENV_TO_INI__DATABASE__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: gitea-database-secret
+            key: password

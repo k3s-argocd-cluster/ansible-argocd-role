@@ -1,0 +1,25 @@
+netdata:
+  ingress:
+    enabled: false
+  child:
+    claiming:
+      enabled: true
+      rooms: {{ kubernetes.netdata.room }}
+    envFrom:
+      - secretRef:
+          name: netdata-secret
+  parent:
+    database:
+      persistence: false
+    alarms:
+      persistence: false
+    claiming:
+      enabled: true
+      rooms: {{ kubernetes.netdata.room }}
+    envFrom:
+      - secretRef:
+          name: netdata-secret
+
+  k8sState:
+    persistence:
+      enabled: false

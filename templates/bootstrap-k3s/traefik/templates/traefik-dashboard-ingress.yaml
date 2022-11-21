@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-public-ui
+  namespace: traefik
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`{{ dns_names.traefik }}`)
+      kind: Rule
+      middlewares:
+        - name: dashboard-ingress-auth
+          namespace: traefik
+      services:
+        - name: api@internal
+          kind: TraefikService

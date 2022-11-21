@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-app-ini
+  namespace: gitea
+data:
+  server: |
+    DOMAIN = {{ dns_names.gitea }}
+    ROOT_URL = http://{{ dns_names.gitea }}

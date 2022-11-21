@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-initdb-config
+  namespace: postgresql
+data:
+{% set scriptcounter = namespace(value=0) %}
+{% for user in postgresql_users %}
+
+  {{ '%02d' % scriptcounter.value }}_user.sh: |
+    #!/bin/bash
+    set -e
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -v POSTGRES_{{ user.name }}_PASSWORD="$POSTGRES_{{ user.name }}_PASSWORD" <<-EOSQL
+      CREATE ROLE {{ user.name }}{% for role in user.roles %} {{role}}{% endfor %} PASSWORD :'POSTGRES_{{ user.name }}_PASSWORD';
+    EOSQL
+  {% set scriptcounter.value = scriptcounter.value + 1 %}
+{% endfor %}
+{% for database in postgresql_settings.additional_databases %}
+
+  {{ '%02d' % scriptcounter.value }}_database.sh: |
+    #!/bin/bash
+    set -e
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+      CREATE DATABASE {{ database.name }} OWNER {{ database.owner }};
+    EOSQL
+  {% set scriptcounter.value = scriptcounter.value + 1 %}
+{% endfor %}

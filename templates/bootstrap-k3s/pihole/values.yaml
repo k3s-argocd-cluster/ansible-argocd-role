@@ -1,0 +1,43 @@
+pihole:
+  admin:
+    existingSecret: pihole-secret
+
+  dnsmasq:
+    additionalHostsEntries:
+      - "{{ metallb.ips.traefik }} {{ dns_names.iobroker }}"
+      - "{{ vrrp_ips.samba }} {{ dns_names.samba }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.pihole }}"
+      - "{{ vrrp_ips.haproxy }} {{ dns_names.haproxy }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.traefik }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.duplicati }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.gitea }}"
+      - "{{ metallb.ips.postgresql }} {{ dns_names.postgresql }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.netdata }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.argocd }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.longhorn }}"
+{% if fritzbox is defined %}
+      - "{{ fritzbox.ip }} {{ fritzbox.dns }}"
+{% endif %}
+
+  persistentVolumeClaim:
+    enabled: false
+
+  serviceWeb:
+    annotations:
+      metallb.universe.tf/allow-shared-ip: pihole-svc
+    type: ClusterIP
+
+  serviceDns:
+    loadBalancerIP: {{ metallb.ips.pihole }}
+    annotations:
+      metallb.universe.tf/allow-shared-ip: pihole-svc
+    type: LoadBalancer
+
+  serviceDhcp:
+    enabled: false
+
+  extraEnvVars:
+    TZ: 'Europe/Berlin'
+    DNSMASQ_LISTENING: 'all'
+    QUERY_LOGGING: 'false'
+    FTLCONF_PRIVACYLEVEL: 3

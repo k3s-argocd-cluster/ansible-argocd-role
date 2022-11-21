@@ -1,0 +1,15 @@
+---
+
+- name: Iterate bootstrap-k3s directory
+  include_tasks: render_templates.yaml
+  with_filetree: "templates/bootstrap-k3s/"
+
+- name: Add recover-volume-hook
+  include_tasks: add_recover_volume_hook.yaml
+  with_items:
+  - namespace: postgresql
+    targetDirectory: "{{ role_path }}/files/bootstrap-k3s/postgresql/base/recover-volume-hook"
+  - namespace: iobroker
+    targetDirectory: "{{ role_path }}/files/bootstrap-k3s/iobroker/base/recover-volume-hook"
+  - namespace: gitea
+    targetDirectory: "{{ role_path }}/files/bootstrap-k3s/gitea/base/recover-volume-hook"

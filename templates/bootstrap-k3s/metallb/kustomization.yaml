@@ -1,0 +1,12 @@
+resources:
+  - github.com/metallb/metallb/config/native?ref={{ kubernetes.metallb.version }}
+  - resources/metallb-adresspool.yaml
+  - resources/metallb-l2advertisement.yaml
+
+patchesJson6902:
+- path: patches/metallb-no-deprecation-warning.yaml
+  target:
+    group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+    name: addresspools.metallb.io
+    version: v1

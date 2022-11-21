@@ -1,0 +1,8 @@
+resources:
+  - resources/repository.yaml
+  - resources/kustomize-helm-cmp-plugin.yaml
+  - sealed/argoproj-ssh-creds.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/{{ kubernetes.argocd.version }}/manifests/install.yaml
+
+patchesStrategicMerge:
+  - patches/kustomized-helm-plugin-sidecar-patch.yaml
