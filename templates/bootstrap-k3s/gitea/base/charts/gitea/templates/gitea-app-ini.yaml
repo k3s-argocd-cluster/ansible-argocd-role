@@ -6,4 +6,4 @@ metadata:
 data:
   server: |
     DOMAIN = {{ dns_names.gitea }}
-    ROOT_URL = http://{{ dns_names.gitea }}
+    ROOT_URL = https://{{ dns_names.gitea }}

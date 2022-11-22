@@ -1,0 +1,18 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitea-ui-https
+  namespace: gitea
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ dns_names.gitea }}`)
+      services:
+        - name: gitea-http
+          port: 3000
+  tls:
+    secretName: gitea-tls-secret
