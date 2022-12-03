@@ -51,7 +51,7 @@
     cmd: |
       sleep 30
       argocd login `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --skip-test-tls --insecure --plaintext --username=admin --password='{{ argocd_password }}'
-      argocd app sync infrastructure --timeout 300
+      argocd app sync infrastructure --timeout 600
       argocd logout `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --insecure --plaintext
 
 - name: Remove bootstrap repository

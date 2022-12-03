@@ -1,6 +1,7 @@
 resources:
   - https://raw.githubusercontent.com/{{ kubernetes.longhorn.repository_organisation }}/longhorn/{{ kubernetes.longhorn.version }}/deploy/longhorn.yaml
   - resources/longhorn-durable.yaml
+  - resources/longhorn-backupstore-secret.yaml
 
 patchesStrategicMerge:
   - patches/default-settings.yaml

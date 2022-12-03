@@ -13,3 +13,5 @@
     targetDirectory: "{{ role_path }}/files/bootstrap-k3s/iobroker/base/recover-volume-hook"
   - namespace: gitea
     targetDirectory: "{{ role_path }}/files/bootstrap-k3s/gitea/base/recover-volume-hook"
+  - namespace: duplicati
+    targetDirectory: "{{ role_path }}/files/bootstrap-k3s/duplicati/base/recover-volume-hook"

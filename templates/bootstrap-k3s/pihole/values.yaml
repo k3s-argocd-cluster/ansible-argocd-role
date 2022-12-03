@@ -1,4 +1,9 @@
 pihole:
+{% if fritzbox is defined %}
+  DNS1: {{ fritzbox.ip }}
+  DNS2: 8.8.8.8
+{% endif %}
+
   admin:
     existingSecret: pihole-secret
 
@@ -15,6 +20,9 @@ pihole:
       - "{{ metallb.ips.traefik }} {{ dns_names.netdata }}"
       - "{{ metallb.ips.traefik }} {{ dns_names.argocd }}"
       - "{{ metallb.ips.traefik }} {{ dns_names.longhorn }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.tekton }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.s3 }}"
+      - "{{ metallb.ips.traefik }} {{ dns_names.minio }}"
 {% if fritzbox is defined %}
       - "{{ fritzbox.ip }} {{ fritzbox.dns }}"
 {% endif %}
@@ -34,6 +42,9 @@ pihole:
     type: LoadBalancer
 
   serviceDhcp:
+    enabled: false
+
+  podDnsConfig:
     enabled: false
 
   extraEnvVars:

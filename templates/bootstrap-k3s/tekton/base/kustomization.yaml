@@ -1,0 +1,10 @@
+resources:
+- https://storage.googleapis.com/tekton-releases/pipeline/previous/{{ kubernetes.tekton.pipeline.version }}/release.yaml
+- https://storage.googleapis.com/tekton-releases/triggers/previous/{{ kubernetes.tekton.triggers.version }}/release.yaml
+- https://storage.googleapis.com/tekton-releases/triggers/previous/{{ kubernetes.tekton.triggers.version }}/interceptors.yaml
+- https://storage.googleapis.com/tekton-releases/dashboard/previous/{{ kubernetes.tekton.dashboard.version }}/tekton-dashboard-release.yaml
+- resources/tekton-namespace.yaml
+- tasks
+
+patchesStrategicMerge:
+  - patches/feature-flags.yaml
