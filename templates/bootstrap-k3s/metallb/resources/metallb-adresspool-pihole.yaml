@@ -1,0 +1,11 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: pihole
+  namespace: metallb-system
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  addresses:
+    - {{ metallb.range.pihole_v4 }}
+    - {{ metallb.range.pihole_v6 }}

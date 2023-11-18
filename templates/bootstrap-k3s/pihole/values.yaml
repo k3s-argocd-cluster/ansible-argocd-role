@@ -33,12 +33,17 @@ pihole:
   serviceWeb:
     annotations:
       metallb.universe.tf/allow-shared-ip: pihole-svc
+    spec:
+      ipFamilyPolicy: PreferDualStack
     type: ClusterIP
 
   serviceDns:
     loadBalancerIP: {{ metallb.ips.pihole }}
     annotations:
       metallb.universe.tf/allow-shared-ip: pihole-svc
+      metallb.universe.tf/address-pool: pihole
+    spec:
+      ipFamilyPolicy: PreferDualStack
     type: LoadBalancer
 
   serviceDhcp:

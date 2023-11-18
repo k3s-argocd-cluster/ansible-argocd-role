@@ -7,4 +7,5 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   addresses:
-    - {{ metallb.range }}
+    - {{ metallb.range.ipv4 }}
+    - {{ metallb.range.ipv6 }}

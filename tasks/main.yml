@@ -1,9 +1,17 @@
 ---
 
+- name: Archive bootstrap repository
+  archive:
+    path: "{{awd}}/ansible_collections/demelopment/k3s/roles/argocd/files/bootstrap-k3s"
+    dest: "{{ fetch_directory }}/bootstrap-k3s/bootstrap-k3s.zip"
+    format: zip
+  delegate_to: localhost
+  become: false
+
 - name: Copy bootstrap repository
-  copy:
-    src: bootstrap-k3s/
-    dest: /tmp/bootstrap-k3s
+  unarchive:
+    src: "{{ fetch_directory }}/bootstrap-k3s/bootstrap-k3s.zip"
+    dest: /tmp
 
 - name: Install sealedsecrets service
   ansible.builtin.shell:
@@ -49,7 +57,7 @@
   ansible.builtin.shell:
     chdir: /tmp
     cmd: |
-      sleep 30
+      sleep 60
       argocd login `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --skip-test-tls --insecure --plaintext --username=admin --password='{{ argocd_password }}'
       argocd app sync infrastructure --timeout 600
       argocd logout `kubectl get service argocd-server -n argocd --template={% raw %}{{.spec.clusterIP}}{% endraw %}` --insecure --plaintext
